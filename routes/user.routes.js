@@ -17,6 +17,9 @@ router.get("/me", verifyToken, async (req, res, next) => {
 // UPDATE GENERAL PROFILE (displayName, description)
 router.patch("/me", verifyToken, async (req, res, next) => {
   const { displayName, description } = req.body
+  if (displayName === undefined && description === undefined) {
+    return res.status(400).json({ errorMessage: "No valid fields to update" })
+  }
 
   try {
     const updatedUser = await User.findByIdAndUpdate(
@@ -102,6 +105,11 @@ router.patch("/me/password", verifyToken, async (req, res, next) => {
       return res.status(400).json({ errorMessage: "Current password is not correct" })
     }
 
+    const isSamePassword = await bcrypt.compare(newPassword, foundUser.password)
+  if (isSamePassword) {
+    return res.status(400).json({ errorMessage: "New password must be different from current password" })
+  }
+
     const hashPassword = await bcrypt.hash(newPassword, 12)
     await User.findByIdAndUpdate(req.payload._id, { password: hashPassword })
     res.status(200).json({ message: "Password updated successfully" })
@@ -185,5 +193,106 @@ router.get("/me/following", verifyToken, async (req, res, next) => {
     next(error)
   }
 })
+
+
+// ADD TO FAVORITES
+router.post("/me/favorites/:motoId", verifyToken, async (req, res, next) => {
+  try {
+    const { motoId } = req.params
+    const updatedUser = await User.findByIdAndUpdate(
+      req.payload._id,
+      { $addToSet: { favorites: motoId } },
+      { new: true, projection: { password: 0 } },
+    )
+    res.status(200).json(updatedUser)
+  } catch (error) {
+    next(error)
+  }
+})
+
+// REMOVE FROM FAVORITES
+router.delete("/me/favorites/:motoId", verifyToken, async (req, res, next) => {
+  try {
+    const { motoId } = req.params
+    const updatedUser = await User.findByIdAndUpdate(
+      req.payload._id,
+      { $pull: { favorites: motoId } },
+      { new: true, projection: { password: 0 } },
+    )
+    res.status(200).json(updatedUser)
+  } catch (error) {
+    next(error)
+  }
+})
+
+// GET FAVORITES
+router.get("/me/favorites", verifyToken, async (req, res, next) => {
+  try {
+    const user = await User.findById(req.payload._id).populate("favorites")
+    res.status(200).json(user.favorites)
+  } catch (error) {
+    next(error)
+  }
+})
+
+
+// DELETE ACCOUNT
+router.delete("/me", verifyToken, async (req, res, next) => {
+  try {
+    const userId = req.payload._id
+    await Promise.all([
+      User.updateMany({ followers: userId }, { $pull: { followers: userId } }),
+      User.updateMany({ following: userId }, { $pull: { following: userId } }),
+    ])
+    await User.findByIdAndDelete(userId)
+    res.status(200).json({ message: "Account deleted successfully" })
+  } catch (error) {
+    next(error)
+  }
+})
+
+
+// GET PUBLIC PROFILE
+router.get("/:id", async (req, res, next) => {
+  try {
+    const { id } = req.params
+    const user = await User.findById(id, { password: 0, email: 0 })
+    if (!user) {
+      return res.status(404).json({ errorMessage: "User not found" })
+    }
+    res.status(200).json(user)
+  } catch (error) {
+    next(error)
+  }
+})
+
+// GET PUBLIC FOLLOWERS OF A USER
+router.get("/:id/followers", async (req, res, next) => {
+  try {
+    const { id } = req.params
+    const user = await User.findById(id).populate("followers", "handle displayName profilePicture")
+    if (!user) {
+      return res.status(404).json({ errorMessage: "User not found" })
+    }
+    res.status(200).json(user.followers)
+  } catch (error) {
+    next(error)
+  }
+})
+
+// GET PUBLIC FOLLOWING OF A USER
+router.get("/:id/following", async (req, res, next) => {
+  try {
+    const { id } = req.params
+    const user = await User.findById(id).populate("following", "handle displayName profilePicture")
+    if (!user) {
+      return res.status(404).json({ errorMessage: "User not found" })
+    }
+    res.status(200).json(user.following)
+  } catch (error) {
+    next(error)
+  }
+})
+
 
 module.exports = router
