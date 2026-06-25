@@ -1,14 +1,13 @@
-const router = require("express").Router();
-const User = require("../models/User.model");
+const router = require("express").Router()
+const User = require("../models/User.model")
 
 const bcrypt = require("bcryptjs")
-const jwt = require("jsonwebtoken");
-const { verifyToken } = require("../middlewares/auth.middlewares");
+const jwt = require("jsonwebtoken")
+const { verifyToken } = require("../middlewares/auth.middlewares")
 
 
 router.post("/signup", async(req, res, next) => {
 
-  console.log(req.body)
   const { handle, email, password } = req.body
 
   if (!email || !password) {
@@ -111,7 +110,6 @@ router.post("/login", async(req, res, next) => {
 
 })
 
-// GET "/api/auth/verify" => validating the user token on subsequent visits
 router.get("/verify", verifyToken, (req, res) => {
   res.status(200).json(req.payload)
 })

@@ -4,6 +4,9 @@ const router = require("express").Router();
 const authRouter = require("./auth.routes")
 router.use("/auth", authRouter)
 
+const userRouter = require("./user.routes")
+router.use("/users", userRouter)
+
 //EXAMPLE OF PRIVATE ROUTE
 const { verifyToken, verifyStatus } = require("../middlewares/auth.middlewares");
 router.get("/example-of-private-route", verifyToken, (req, res) => {
