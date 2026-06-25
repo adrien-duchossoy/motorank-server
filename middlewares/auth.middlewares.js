@@ -3,8 +3,6 @@ const jwt = require("jsonwebtoken")
 
 function verifyToken(req, res, next) {
 
-  console.log(req.headers)
-
   try {
     const authToken = req.headers.authorization.split(" ")[1]
     const payload = jwt.verify(authToken, process.env.TOKEN_SECRET)

@@ -8,7 +8,7 @@ const { verifyToken } = require("../middlewares/auth.middlewares")
 
 router.post("/signup", async(req, res, next) => {
 
-  const { handle, email, password } = req.body
+  const { handle, email, password, displayName } = req.body
 
   if (!email || !password) {
     res.status(400).json({errorMessage: "Email and Password are required"})
@@ -26,6 +26,7 @@ router.post("/signup", async(req, res, next) => {
   const emailRegex = /[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*@(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?/gm
   if (emailRegex.test(email) === false){
     res.status(400).json({errorMessage: "Email is not valid"})
+    return
   }
 
   //handle format
@@ -50,7 +51,8 @@ router.post("/signup", async(req, res, next) => {
     const newUser = {
       handle: handle,
       email: email,
-      password: hashPassword
+      password: hashPassword,
+      displayName: displayName
     }
 
     await User.create(newUser)
@@ -65,7 +67,6 @@ router.post("/signup", async(req, res, next) => {
 
 router.post("/login", async(req, res, next) => {
 
-  console.log(req.body)
   const { login, password } = req.body
 
   const emailRegex = /[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*@(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?/gm

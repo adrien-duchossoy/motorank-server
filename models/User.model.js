@@ -1,7 +1,10 @@
-// ❗This is an example of a User Model. 
+// @ts-nocheck
+// ❗This is an example of a User Model.
 // TODO: Please make sure you edit the User model to whatever makes sense in your project.
 
-const { Schema, model } = require("mongoose");
+const mongoose = require("mongoose")
+const { Schema, model } = mongoose
+
 
 const userSchema = new Schema(
   {
@@ -10,8 +13,7 @@ const userSchema = new Schema(
       required: [true, 'Choose a handle.'],
       unique: true,
       lowercase: true,
-      trim: true,
-      match: [/^[a-z0-9_-]+$/gm, 'Invalid handle']
+      trim: true
     },
     email: {
       type: String,
@@ -24,13 +26,31 @@ const userSchema = new Schema(
       type: String,
       required: [true, 'Password is required.'],
     },
-    profile_picture: {
+    profilePicture: {
+      type: String,
+    },
+    displayName: {
       type: String,
     },
     status: {
       type: String,
       enum: ["user", "verified"],
       default: "user"
+    },
+    description: {
+      type: String,
+    },
+    favorites: {
+      type: [mongoose.Types.ObjectId],
+      ref: "Moto"
+    },
+    followers: {
+      type: [mongoose.Types.ObjectId],
+      ref: "User"
+    },
+    following: {
+      type: [mongoose.Types.ObjectId],
+      ref: "User"
     }
   },
   {
@@ -39,31 +59,5 @@ const userSchema = new Schema(
   }
 );
 
-
-// handle: String (unique)
-// email: String
-// password: String (hashed)
-// profile_picture: String (URL Cloudinary)
-// description: String
-// is_verified: Boolean (default: false)
-// favorites: [ObjectId] (ref → Motorcycle)
-// followers: [ObjectId] (ref → User)
-// following: [ObjectId] (ref → User)
-// created_at: Date
-// updated_at: Date 
-
-
-
-
-
-
-
-
-
-
-
-
-
-const User = model("User", userSchema);
-
-module.exports = User;
+const User = model("User", userSchema)
+module.exports = User
