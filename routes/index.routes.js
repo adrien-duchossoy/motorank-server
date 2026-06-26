@@ -14,7 +14,7 @@ const motoRoutes = require("./moto.routes")
 router.use("/motos", motoRoutes)
 
 const motoAdminRoutes = require("./moto.admin.routes")
-router.use("/motos", motoAdminRoutes)
+router.use("/admin/motos", motoAdminRoutes)
 
 const garageRoutes = require("./garage.routes")
 router.use("/garage", garageRoutes)
