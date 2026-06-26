@@ -57,7 +57,9 @@ router.post("/signup", async(req, res, next) => {
 
     await User.create(newUser)
 
-    res.status(201).send("user created!")
+    const newUserInfo = await User.findOne({ email }, { password: 0 })
+
+    res.status(201).json(newUserInfo)
     
   } catch (error) {
     next(error)
