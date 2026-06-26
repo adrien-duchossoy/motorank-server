@@ -10,6 +10,18 @@ router.use("/users", userRouter)
 const uploadRoutes = require("./upload.routes")
 router.use("/upload", uploadRoutes)
 
+const motoRoutes = require("./moto.routes")
+router.use("/motos", motoRoutes)
+
+const motoAdminRoutes = require("./moto.admin.routes")
+router.use("/motos", motoAdminRoutes)
+
+const garageRoutes = require("./garage.routes")
+router.use("/garage", garageRoutes)
+
+const reviewRoutes = require("./review.routes")
+router.use("/reviews", reviewRoutes)
+
 //EXAMPLE OF PRIVATE ROUTE
 const { verifyToken, verifyStatus } = require("../middlewares/auth.middlewares")
 router.get("/example-of-private-route", verifyToken, (req, res) => {

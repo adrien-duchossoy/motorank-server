@@ -34,7 +34,7 @@ const userSchema = new Schema(
     },
     status: {
       type: String,
-      enum: ["user", "verified"],
+      enum: ["user", "verified", "admin"],
       default: "user"
     },
     description: {
@@ -51,7 +51,11 @@ const userSchema = new Schema(
     following: {
       type: [mongoose.Types.ObjectId],
       ref: "User"
-    }
+    },
+    reviewCount: {
+      type: Number,
+      default: 0,
+    },
   },
   {
     // this second object adds extra properties: `createdAt` and `updatedAt`    
