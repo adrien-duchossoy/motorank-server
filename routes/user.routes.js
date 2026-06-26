@@ -1,7 +1,10 @@
 const router = require("express").Router()
 const User = require("../models/User.model")
+const Garage = require("../models/Garage.model")
+const Review = require("../models/Review.model")
 const bcrypt = require("bcryptjs")
 const { verifyToken } = require("../middlewares/auth.middlewares")
+const createEvent = require("../utils/createEvent")
 
 
 router.get("/me", verifyToken, async (req, res, next) => {
@@ -149,10 +152,20 @@ router.post("/me/following/:targetId", verifyToken, async (req, res, next) => {
     if (targetId === followerId.toString()) {
       return res.status(400).json({ errorMessage: "You cannot follow yourself" })
     }
-    await Promise.all([
-      User.findByIdAndUpdate(targetId, { $addToSet: { followers: followerId } }),
+    const [targetUser] = await Promise.all([
+      User.findByIdAndUpdate(targetId, { $addToSet: { followers: followerId } }, { projection: { handle: 1 } }),
       User.findByIdAndUpdate(followerId, { $addToSet: { following: targetId } }),
     ])
+
+    try {
+      await createEvent(
+        followerId,
+        "new_follow",
+        targetId,
+        `@${req.payload.handle} is now following @${targetUser.handle}`
+      )
+    } catch (_) {}
+
     res.status(200).json({ message: "Followed" })
   } catch (error) {
     next(error)
@@ -289,6 +302,29 @@ router.get("/:id/following", async (req, res, next) => {
       return res.status(404).json({ errorMessage: "User not found" })
     }
     res.status(200).json(user.following)
+  } catch (error) {
+    next(error)
+  }
+})
+
+// GET PUBLIC GARAGE OF A USER
+router.get("/:id/garage", async (req, res, next) => {
+  try {
+    const entries = await Garage.find({ userId: req.params.id })
+      .populate("motorcycleId", "brandName modelName productionYear type picture slug")
+    res.status(200).json(entries)
+  } catch (error) {
+    next(error)
+  }
+})
+
+// GET PUBLIC REVIEWS OF A USER
+router.get("/:id/reviews", async (req, res, next) => {
+  try {
+    const reviews = await Review.find({ userId: req.params.id })
+      .populate("motorcycleId", "brandName modelName productionYear picture slug")
+      .sort({ createdAt: -1 })
+    res.status(200).json(reviews)
   } catch (error) {
     next(error)
   }

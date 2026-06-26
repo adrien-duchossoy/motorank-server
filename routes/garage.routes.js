@@ -1,6 +1,7 @@
 const router = require("express").Router()
 const Garage = require("../models/Garage.model")
 const { verifyToken } = require("../middlewares/auth.middlewares")
+const createEvent = require("../utils/createEvent")
 
 
 // GET MY GARAGE
@@ -20,6 +21,19 @@ router.post("/", verifyToken, async (req, res, next) => {
 
   try {
     const entry = await Garage.create({ userId: req.payload._id, motorcycleId })
+    const populated = await entry.populate("motorcycleId", "brandName modelName productionYear")
+
+    try {
+      const { brandName, modelName, productionYear } = populated.motorcycleId
+      await createEvent(
+        req.payload._id,
+        "garage_add",
+        entry._id,
+        `@${req.payload.handle} added the ${brandName} ${modelName} ${productionYear} to their garage`,
+        { motoPicture: populated.motorcycleId.picture }
+      )
+    } catch (_) {}
+
     res.status(201).json(entry)
   } catch (error) {
     if (error.code === 11000) {

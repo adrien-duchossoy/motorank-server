@@ -3,6 +3,20 @@ const Review = require("../models/Review.model")
 const Moto = require("../models/Moto.model")
 const User = require("../models/User.model")
 const { verifyToken } = require("../middlewares/auth.middlewares")
+const createEvent = require("../utils/createEvent")
+
+
+// GET MY OWN REVIEWS
+router.get("/me", verifyToken, async (req, res, next) => {
+  try {
+    const reviews = await Review.find({ userId: req.payload._id })
+      .populate("motorcycleId", "brandName modelName productionYear picture slug")
+      .sort({ createdAt: -1 })
+    res.status(200).json(reviews)
+  } catch (error) {
+    next(error)
+  }
+})
 
 
 // GET ALL REVIEWS FOR A MOTO
@@ -48,6 +62,16 @@ router.post("/", verifyToken, async (req, res, next) => {
     if (updatedUser.reviewCount === 5 && updatedUser.status === "user") {
       await User.findByIdAndUpdate(req.payload._id, { status: "verified" })
     }
+
+    try {
+      await createEvent(
+        req.payload._id,
+        "new_review",
+        review._id,
+        `@${req.payload.handle} reviewed the ${moto.brandName} ${moto.modelName} ${moto.productionYear}`,
+        { rating, comment, motoPicture: moto.picture }
+      )
+    } catch (_) {}
 
     res.status(201).json(review)
   } catch (error) {
