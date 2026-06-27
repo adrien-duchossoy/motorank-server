@@ -11,38 +11,39 @@ router.post("/signup", async(req, res, next) => {
   const { handle, email, password, displayName } = req.body
 
   if (!email || !password) {
-    res.status(400).json({errorMessage: "Email and Password are required"})
+    res.status(400).json({ errorCode: "AUTH_CREDENTIALS_REQUIRED", errorMessage: "Email and Password are required" })
     return
   }
 
   // the strength of the password
   const passwordRegex = /^(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[a-zA-Z]).{8,}$/gm
   if (passwordRegex.test(password) === false) {
-    res.status(400).json({errorMessage: "Password is not strongh enough. Needs to have at least one digit, one uppercase, one lowercase and 8 characters of length."})
+    res.status(400).json({ errorCode: "AUTH_PASSWORD_TOO_WEAK", errorMessage: "Password is not strongh enough. Needs to have at least one digit, one uppercase, one lowercase and 8 characters of length." })
     return
   }
 
   //email format
   const emailRegex = /[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*@(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?/gm
   if (emailRegex.test(email) === false){
-    res.status(400).json({errorMessage: "Email is not valid"})
+    res.status(400).json({ errorCode: "AUTH_EMAIL_INVALID", errorMessage: "Email is not valid" })
     return
   }
 
   //handle format
   const handleRegex = /^[a-z0-9_-]+$/gm
   if (handleRegex.test(handle) === false){
-    res.status(400).json({errorMessage: "Handle must only contain lowercase, numbers and - or _"})
+    res.status(400).json({ errorCode: "AUTH_HANDLE_INVALID", errorMessage: "Handle must only contain lowercase, numbers and - or _" })
   }
 
   try {
 
     const foundUser = await User.findOne({ $or: [{email}, {handle}] })
     if (foundUser) {
-        const message = foundUser.email === email
-        ? "This email is already used with an existing account"
-        : "This handle is already taken"
-      res.status(400).json({errorMessage: message})
+      if (foundUser.email === email) {
+        res.status(409).json({ errorCode: "AUTH_EMAIL_ALREADY_TAKEN", errorMessage: "This email is already used with an existing account" })
+      } else {
+        res.status(409).json({ errorCode: "AUTH_HANDLE_ALREADY_TAKEN", errorMessage: "This handle is already taken" })
+      }
       return
     }
 
@@ -76,7 +77,7 @@ router.post("/login", async(req, res, next) => {
 
 
     if (!login || !password) {
-    res.status(400).json({errorMessage: "Email and Password are required"})
+    res.status(400).json({ errorCode: "AUTH_CREDENTIALS_REQUIRED", errorMessage: "Email and Password are required" })
     return
   }
 
@@ -85,13 +86,13 @@ router.post("/login", async(req, res, next) => {
         isEmail ? { email: login} : { handle: login}
     )
     if (!foundUser) {
-      res.status(400).json({errorMessage: "User not found with that email or username. Please signup first"})
+      res.status(404).json({ errorCode: "AUTH_USER_NOT_FOUND", errorMessage: "User not found with that email or username. Please signup first" })
       return
     }
 
     const isPasswordCorrect = await bcrypt.compare(password, foundUser.password)
     if (!isPasswordCorrect) {
-      res.status(400).json({errorMessage: "Password is not correct"})
+      res.status(401).json({ errorCode: "AUTH_INVALID_PASSWORD", errorMessage: "Password is not correct" })
       return
     }
 
