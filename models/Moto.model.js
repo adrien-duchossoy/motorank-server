@@ -23,7 +23,10 @@ const motoSchema = new Schema(
       enum: motoTypes,
       required: [true, "Moto type is required."],
     },
-    cylinder: {
+    cylinders: {
+      type: Number,
+    },
+    displacement: {
       type: Number,
     },
     horsepower: {

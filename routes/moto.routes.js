@@ -5,14 +5,14 @@ const Fuse = require("fuse.js")
 
 // GET ALL MOTOS (filters + search)
 router.get("/", async (req, res, next) => {
-  const { brand, type, cylinder, minYear, maxYear, minHp, maxHp, search } = req.query
+  const { brand, type, cylinders, minYear, maxYear, minHp, maxHp, search } = req.query
 
   try {
     const query = {}
 
     if (brand) query.brandName = brand
     if (type) query.type = type
-    if (cylinder) query.cylinder = Number(cylinder)
+    if (cylinders) query.cylinders = Number(cylinders)
     if (minYear || maxYear) {
       query.productionYear = {}
       if (minYear) query.productionYear.$gte = Number(minYear)

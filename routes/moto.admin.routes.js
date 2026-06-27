@@ -5,10 +5,10 @@ const { verifyToken, verifyStatus, verifyAdmin } = require("../middlewares/auth.
 
 // CREATE MOTO
 router.post("/", verifyToken, verifyStatus, async (req, res, next) => {
-  const { brandName, modelName, productionYear, type, cylinder, horsepower, torqueNm, weightKg, picture } = req.body
+  const { brandName, modelName, productionYear, type, cylinders, displacement, horsepower, torqueNm, weightKg, picture } = req.body
 
   try {
-    const moto = new Moto({ brandName, modelName, productionYear, type, cylinder, horsepower, torqueNm, weightKg, picture })
+    const moto = new Moto({ brandName, modelName, productionYear, type, cylinders, displacement, horsepower, torqueNm, weightKg, picture })
     const savedMoto = await moto.save()
     res.status(201).json(savedMoto)
   } catch (error) {
@@ -19,7 +19,7 @@ router.post("/", verifyToken, verifyStatus, async (req, res, next) => {
 
 // EDIT MOTO
 router.patch("/:id", verifyToken, verifyStatus, async (req, res, next) => {
-  const { brandName, modelName, productionYear, type, cylinder, horsepower, torqueNm, weightKg, picture } = req.body
+  const { brandName, modelName, productionYear, type, cylinders, displacement, horsepower, torqueNm, weightKg, picture } = req.body
 
   try {
     const moto = await Moto.findById(req.params.id)
@@ -31,7 +31,8 @@ router.patch("/:id", verifyToken, verifyStatus, async (req, res, next) => {
     if (modelName !== undefined) moto.modelName = modelName
     if (productionYear !== undefined) moto.productionYear = productionYear
     if (type !== undefined) moto.type = type
-    if (cylinder !== undefined) moto.cylinder = cylinder
+    if (cylinders !== undefined) moto.cylinders = cylinders
+    if (displacement !== undefined) moto.displacement = displacement
     if (horsepower !== undefined) moto.horsepower = horsepower
     if (torqueNm !== undefined) moto.torqueNm = torqueNm
     if (weightKg !== undefined) moto.weightKg = weightKg
