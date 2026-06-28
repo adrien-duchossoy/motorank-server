@@ -15,8 +15,14 @@ const storage = new CloudinaryStorage({
   cloudinary,
   params: {
     allowed_formats: ["jpg", "png", "webp"],
-    folder: "motorank", // The name of the folder where images will be stored in cloudinary
-    // resource_type: 'raw' => this is in case you want to upload other type of files, not just images
+    folder: "motorank",
+    transformation: [
+      { effect: "trim" },
+      { quality: "auto:best" },
+      { fetch_format: "auto" },
+      { effect: "contrast:15" },
+      { effect: "brightness:-5" },
+    ]
   },
 });
 
