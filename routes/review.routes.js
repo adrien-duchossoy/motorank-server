@@ -19,6 +19,22 @@ router.get("/me", verifyToken, async (req, res, next) => {
 })
 
 
+// GET A SPECIFIC REVIEW
+router.get("/:id", async (req, res, next) => {
+  try {
+    const review = await Review.findById(req.params.id)
+      .populate("userId", "handle displayName profilePicture")
+      .populate("motorcycleId", "brandName modelName productionYear picture slug")
+    if (!review) {
+      return res.status(404).json({ errorMessage: "Review not found" })
+    }
+    res.status(200).json(review)
+  } catch (error) {
+    next(error)
+  }
+})
+
+
 // GET ALL REVIEWS FOR A MOTO
 router.get("/moto/:motorcycleId", async (req, res, next) => {
   try {
@@ -68,7 +84,7 @@ router.post("/", verifyToken, async (req, res, next) => {
         req.payload._id,
         "new_review",
         review._id,
-        `@${req.payload.handle} reviewed the ${moto.brandName} ${moto.modelName} ${moto.productionYear}`,
+        `posted a new review of the ${moto.brandName} ${moto.modelName} ${moto.productionYear}`,
         { rating, comment, motoPicture: moto.picture }
       )
     } catch (_) {}
