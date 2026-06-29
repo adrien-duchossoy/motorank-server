@@ -23,7 +23,7 @@ router.get("/me", verifyToken, async (req, res, next) => {
 router.get("/:id", async (req, res, next) => {
   try {
     const review = await Review.findById(req.params.id)
-      .populate("userId", "handle displayName profilePicture")
+      .populate("userId", "handle displayName profilePicture status")
       .populate("motorcycleId", "brandName modelName productionYear picture slug")
     if (!review) {
       return res.status(404).json({ errorMessage: "Review not found" })
@@ -39,7 +39,7 @@ router.get("/:id", async (req, res, next) => {
 router.get("/moto/:motorcycleId", async (req, res, next) => {
   try {
     const reviews = await Review.find({ motorcycleId: req.params.motorcycleId })
-      .populate("userId", "handle displayName profilePicture")
+      .populate("userId", "handle displayName profilePicture status")
     res.status(200).json(reviews)
   } catch (error) {
     next(error)

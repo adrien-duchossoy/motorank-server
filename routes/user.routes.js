@@ -190,7 +190,7 @@ router.delete("/me/following/:targetId", verifyToken, async (req, res, next) => 
 // FOLLOWERS
 router.get("/me/followers", verifyToken, async (req, res, next) => {
   try {
-    const user = await User.findById(req.payload._id).populate("followers", "handle displayName profilePicture")
+    const user = await User.findById(req.payload._id).populate("followers", "handle displayName profilePicture status")
     res.status(200).json(user.followers)
   } catch (error) {
     next(error)
@@ -200,7 +200,7 @@ router.get("/me/followers", verifyToken, async (req, res, next) => {
 // FOLLOWING
 router.get("/me/following", verifyToken, async (req, res, next) => {
   try {
-    const user = await User.findById(req.payload._id).populate("following", "handle displayName profilePicture")
+    const user = await User.findById(req.payload._id).populate("following", "handle displayName profilePicture status")
     res.status(200).json(user.following)
   } catch (error) {
     next(error)
@@ -283,7 +283,7 @@ router.get("/:id", async (req, res, next) => {
 router.get("/:id/followers", async (req, res, next) => {
   try {
     const { id } = req.params
-    const user = await User.findById(id).populate("followers", "handle displayName profilePicture")
+    const user = await User.findById(id).populate("followers", "handle displayName profilePicture status")
     if (!user) {
       return res.status(404).json({ errorMessage: "User not found" })
     }
@@ -297,7 +297,7 @@ router.get("/:id/followers", async (req, res, next) => {
 router.get("/:id/following", async (req, res, next) => {
   try {
     const { id } = req.params
-    const user = await User.findById(id).populate("following", "handle displayName profilePicture")
+    const user = await User.findById(id).populate("following", "handle displayName profilePicture status")
     if (!user) {
       return res.status(404).json({ errorMessage: "User not found" })
     }

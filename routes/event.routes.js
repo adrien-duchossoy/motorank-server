@@ -9,7 +9,7 @@ router.get("/feed", verifyToken, async (req, res, next) => {
   try {
     const user = await User.findById(req.payload._id, { following: 1 })
     const events = await Event.find({ actorId: { $in: user.following } })
-      .populate("actorId", "handle displayName profilePicture")
+      .populate("actorId", "handle displayName profilePicture status")
       .sort({ createdAt: -1 })
       .limit(50)
     res.status(200).json(events)
