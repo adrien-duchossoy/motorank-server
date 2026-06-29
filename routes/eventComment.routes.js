@@ -1,5 +1,6 @@
 const router = require("express").Router()
 const EventComment = require("../models/EventComment.model")
+const Event = require("../models/Event.model")
 const { verifyToken } = require("../middlewares/auth.middlewares")
 
 
@@ -25,6 +26,7 @@ router.post("/:eventId", verifyToken, async (req, res, next) => {
       userId: req.payload._id,
       content,
     })
+    await Event.findByIdAndUpdate(req.params.eventId, { $inc: { commentCount: 1 } })
     await comment.populate("userId", "handle displayName profilePicture")
     res.status(201).json(comment)
   } catch (error) {
@@ -58,6 +60,7 @@ router.delete("/:commentId", verifyToken, async (req, res, next) => {
     if (!comment) {
       return res.status(404).json({ errorMessage: "Comment not found" })
     }
+    await Event.findByIdAndUpdate(comment.eventId, { $inc: { commentCount: -1 } })
     res.status(200).json({ message: "Comment deleted successfully" })
   } catch (error) {
     next(error)
