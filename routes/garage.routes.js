@@ -14,6 +14,19 @@ router.get("/", verifyToken, async (req, res, next) => {
   }
 })
 
+// GET A GARAGE ENTRY
+router.get("/:id", verifyToken, async (req, res, next) => {
+  try {
+    const entry = await Garage.findOne({ _id: req.params.id, userId: req.payload._id }).populate("motorcycleId")
+    if (!entry) {
+      return res.status(404).json({ errorMessage: "Garage entry not found" })
+    }
+    res.status(200).json(entry)
+  } catch (error) {
+    next(error)
+  }
+})
+
 
 // ADD A MOTO TO MY GARAGE
 router.post("/", verifyToken, async (req, res, next) => {
