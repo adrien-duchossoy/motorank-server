@@ -25,4 +25,7 @@ router.use("/reviews", reviewRoutes)
 const eventRoutes = require("./event.routes")
 router.use("/events", eventRoutes)
 
+const eventCommentRoutes = require("./eventComment.routes")
+router.use("/event-comments", eventCommentRoutes)
+
 module.exports = router
