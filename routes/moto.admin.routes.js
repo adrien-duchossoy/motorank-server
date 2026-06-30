@@ -2,6 +2,7 @@ const router = require("express").Router()
 const Moto = require("../models/Moto.model")
 const { verifyToken, verifyStatus, verifyAdmin } = require("../middlewares/auth.middlewares")
 const Anthropic = require("@anthropic-ai/sdk")
+const cloudinary = require("cloudinary").v2
 const { motoTypes } = require("../constants/moto.enums")
 const anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY })
 
@@ -121,12 +122,28 @@ router.post("/image-suggest", verifyToken, verifyStatus, async (req, res, next) 
 
     const response = await fetch(url)
     const data = await response.json()
-
     if (!data.images_results || data.images_results.length === 0) {
       return res.status(404).json({ errorMessage: "No image found for this motorcycle" })
     }
 
-    res.status(200).json({ imageUrl: data.images_results[0].original })
+    let cloudinaryResult = null
+    for (const image of data.images_results.slice(0, 5)) {
+      try {
+        cloudinaryResult = await cloudinary.uploader.upload(image.original, {
+          folder: "motorank",
+          resource_type: "image",
+        })
+        break
+      } catch {
+        continue
+      }
+    }
+
+    if (!cloudinaryResult) {
+      return res.status(404).json({ errorMessage: "No accessible image found for this motorcycle" })
+    }
+
+    res.status(200).json({ imageUrl: cloudinaryResult.secure_url })
   } catch (error) {
     next(error)
   }
