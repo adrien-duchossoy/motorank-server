@@ -107,5 +107,32 @@ router.post("/ai-suggest", verifyToken, verifyStatus, async(req, res, next) => {
   }
 })
 
+// IMAGE SUGGEST
+router.post("/image-suggest", verifyToken, verifyStatus, async (req, res, next) => {
+  const { brandName, modelName, productionYear } = req.body
+
+  if (!brandName || !modelName || !productionYear) {
+    return res.status(400).json({ errorMessage: "Brand, model and year are required" })
+  }
+
+  try {
+    const query = encodeURIComponent(`${brandName} ${modelName} ${productionYear} motorcycle`)
+    const url = `https://serpapi.com/search.json?engine=google_images&q=${query}&imgsz=l&api_key=${process.env.SERPAPI_KEY}`
+
+    const response = await fetch(url)
+    const data = await response.json()
+
+    if (!data.images_results || data.images_results.length === 0) {
+      return res.status(404).json({ errorMessage: "No image found for this motorcycle" })
+    }
+
+    res.status(200).json({ imageUrl: data.images_results[0].original })
+  } catch (error) {
+    next(error)
+  }
+})
+
+
+
 
 module.exports = router
