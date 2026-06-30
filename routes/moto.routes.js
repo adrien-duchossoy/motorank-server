@@ -1,6 +1,18 @@
 const router = require("express").Router()
 const Moto = require("../models/Moto.model")
 const Fuse = require("fuse.js")
+const { brandNames, motoTypes } = require("../constants/moto.enums")
+
+
+// GET ALL BRANDS
+router.get("/brands", (req, res) => {
+  res.status(200).json(brandNames)
+})
+
+// GET ALL TYPES
+router.get("/types", (req, res) => {
+  res.status(200).json(motoTypes)
+})
 
 
 // GET ALL MOTOS (filters + search)
