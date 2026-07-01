@@ -152,6 +152,8 @@ router.delete("/:id", verifyToken, async (req, res, next) => {
       averageRating: Math.round(newAverageRating * 10) / 10,
     })
 
+    await User.findByIdAndUpdate(review.userId, { $inc: { reviewCount: -1 } })
+
     res.status(200).json({ message: "Review deleted successfully" })
   } catch (error) {
     next(error)

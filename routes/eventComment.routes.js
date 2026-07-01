@@ -21,6 +21,10 @@ router.get("/:eventId", async (req, res, next) => {
 router.post("/:eventId", verifyToken, async (req, res, next) => {
   const { content } = req.body
   try {
+    const event = await Event.findById(req.params.eventId)
+    if (!event) {
+      return res.status(404).json({ errorMessage: "Event not found" })
+    }
     const comment = await EventComment.create({
       eventId: req.params.eventId,
       userId: req.payload._id,

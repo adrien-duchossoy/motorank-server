@@ -18,7 +18,7 @@ router.post("/signup", async(req, res, next) => {
   // the strength of the password
   const passwordRegex = /^(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[a-zA-Z]).{8,}$/gm
   if (passwordRegex.test(password) === false) {
-    res.status(400).json({ errorCode: "AUTH_PASSWORD_TOO_WEAK", errorMessage: "Password is not strongh enough. Needs to have at least one digit, one uppercase, one lowercase and 8 characters of length." })
+    res.status(400).json({ errorCode: "AUTH_PASSWORD_TOO_WEAK", errorMessage: "Password is not strong enough. Needs to have at least one digit, one uppercase, one lowercase and 8 characters of length." })
     return
   }
 

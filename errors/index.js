@@ -4,7 +4,7 @@ function handleErrors(app) {
   
   // ℹ️ Handles requests to undefined routes (404 Not Found)
   app.use((req, res, next) => {
-    res.status(404).json({ message: "This route does not exist" });
+    res.status(404).json({ errorMessage: "This route does not exist" });
   });
 
   // ℹ️ Centralized generic error handling middleware. whenever you call next(error), this middleware will handle the error
@@ -18,7 +18,7 @@ function handleErrors(app) {
       res
         .status(500)
         .json({
-          message: "Internal server error. Check the server console for details",
+          errorMessage: "Internal server error. Check the server console for details",
         });
     }
   });

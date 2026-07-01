@@ -92,7 +92,7 @@ router.post("/ai-suggest", verifyToken, verifyStatus, async(req, res, next) => {
           required: ["type", "displacement", "horsepower", "torqueNm", "weightKg"]
         }
       }],
-      tool_choice: {type: "any"},
+      tool_choice: { type: "tool", name: "fill_moto_specs" },
       messages: [{
         role: "user",
         content: `What are the technical specifications of the  ${productionYear} ${brandName} ${modelName} ?`
